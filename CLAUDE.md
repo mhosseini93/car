@@ -8,7 +8,7 @@
 
 ## پروژه‌های مرتبط
 - **فرانت‌اند (همین پروژه، Next.js):** `C:\Users\m.hosseini\Desktop\111` — گیت‌هاب: https://github.com/mhosseini93/car — پورت `3000`
-- **بک‌اند (NestJS):** `C:\Users\m.hosseini\Desktop\car-backend` — API روی `http://localhost:4000/api` (اجرا: `npm run start:dev` در همان پوشه). قراردادهای بک‌اند در `CLAUDE.md` همان پروژه است.
+- **بک‌اند (NestJS):** `C:\Users\m.hosseini\Desktop\car-backend` — گیت‌هاب: https://github.com/mhosseini93/car-back — API روی `http://localhost:4000/api` (اجرا: `npm run start:dev` در همان پوشه). قراردادهای بک‌اند در `CLAUDE.md` همان پروژه است.
 - **دیتابیس:** PostgreSQL 18 لوکال (دیتابیس `car`)، فقط از طریق بک‌اند؛ فرانت‌اند مستقیم به دیتابیس وصل نمی‌شود.
 
 ## ساختار و پنل مدیریت
