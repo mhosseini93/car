@@ -49,6 +49,15 @@ const toPayload = (columns: EditableColumn[]): FooterColumn[] =>
     links: c.links.map((l) => ({ label: l.label.trim(), href: l.href.trim() })),
   }))
 
+// Fixed key order, since the API (Postgres jsonb) may return keys in any order
+const serialize = (columns: FooterColumn[]) =>
+  JSON.stringify(
+    columns.map((c) => ({
+      title: c.title,
+      links: c.links.map((l) => ({ label: l.label, href: l.href })),
+    }))
+  )
+
 function move<T>(list: T[], index: number, offset: number): T[] {
   const target = index + offset
   if (target < 0 || target >= list.length) return list
@@ -73,22 +82,22 @@ function validate(columns: EditableColumn[]): Record<string, string> {
 
 function formatDate(value: string | null) {
   if (!value) return null
-  // SQLite stores UTC as "YYYY-MM-DD HH:MM:SS"
-  return new Date(value.replace(" ", "T") + "Z").toLocaleString("fa-IR", {
+  // The API returns an ISO 8601 timestamp
+  return new Date(value).toLocaleString("fa-IR", {
     dateStyle: "medium",
     timeStyle: "short",
   })
 }
 
 export function FooterLinksEditor({ initial }: { initial: FooterSettings }) {
-  const [saved, setSaved] = React.useState(() => JSON.stringify(initial.columns))
+  const [saved, setSaved] = React.useState(() => serialize(initial.columns))
   const [updatedAt, setUpdatedAt] = React.useState(initial.updatedAt)
   const [columns, setColumns] = React.useState(() => toEditable(initial.columns))
   const [errors, setErrors] = React.useState<Record<string, string>>({})
   const [result, setResult] = React.useState<{ ok: boolean; messages: string[] } | null>(null)
   const [pending, startTransition] = React.useTransition()
 
-  const dirty = JSON.stringify(toPayload(columns)) !== saved
+  const dirty = serialize(toPayload(columns)) !== saved
 
   const update = (fn: (columns: EditableColumn[]) => EditableColumn[]) => {
     setColumns(fn)
@@ -108,7 +117,7 @@ export function FooterLinksEditor({ initial }: { initial: FooterSettings }) {
     startTransition(async () => {
       const res = await saveFooterSettings(toPayload(columns))
       if (res.ok) {
-        setSaved(JSON.stringify(res.settings.columns))
+        setSaved(serialize(res.settings.columns))
         setUpdatedAt(res.settings.updatedAt)
         setResult({ ok: true, messages: ["تغییرات ذخیره شد و در فوتر سایت اعمال شد."] })
       } else {
