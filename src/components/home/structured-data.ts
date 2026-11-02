@@ -1,11 +1,57 @@
 import { absoluteUrl, siteConfig } from "@/lib/site"
 
-import { cars, faqs } from "./data"
+import { brands, faqs, getBrand, popularCars, type Car } from "./data"
 
-const orgId = absoluteUrl("/#organization")
+export const orgId = absoluteUrl("/#organization")
 
 // Prices are stored in toman; schema.org expects an ISO currency (IRR = toman × 10)
 const toRial = (toman: number) => toman * 10
+
+export function carListSchema(name: string, list: Car[]) {
+  return {
+    "@type": "ItemList",
+    name,
+    itemListElement: list.map((car, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Car",
+        name: car.name,
+        brand: { "@type": "Brand", name: getBrand(car.brand)?.name },
+        itemCondition:
+          car.condition === "new"
+            ? "https://schema.org/NewCondition"
+            : "https://schema.org/UsedCondition",
+        vehicleTransmission: car.gearbox,
+        fuelType: car.fuel,
+        mileageFromOdometer: {
+          "@type": "QuantitativeValue",
+          value: car.mileage ?? 0,
+          unitCode: "KMT",
+        },
+        offers: {
+          "@type": "Offer",
+          price: toRial(car.price),
+          priceCurrency: "IRR",
+          availability: "https://schema.org/InStock",
+          seller: { "@id": orgId },
+        },
+      },
+    })),
+  }
+}
+
+export function breadcrumbSchema(items: { name: string; path: string }[]) {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  }
+}
 
 export const homeStructuredData = {
   "@context": "https://schema.org",
@@ -26,6 +72,7 @@ export const homeStructuredData = {
         addressLocality: siteConfig.address.city,
         addressCountry: siteConfig.address.country,
       },
+      brand: brands.map((b) => ({ "@type": "Brand", name: b.name })),
     },
     {
       "@type": "WebSite",
@@ -35,36 +82,7 @@ export const homeStructuredData = {
       inLanguage: "fa-IR",
       publisher: { "@id": orgId },
     },
-    {
-      "@type": "ItemList",
-      name: "خودروهای قابل خرید اقساطی",
-      itemListElement: cars.map((car, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        item: {
-          "@type": "Car",
-          name: car.name,
-          itemCondition:
-            car.condition === "new"
-              ? "https://schema.org/NewCondition"
-              : "https://schema.org/UsedCondition",
-          vehicleTransmission: car.gearbox,
-          fuelType: car.fuel,
-          mileageFromOdometer: {
-            "@type": "QuantitativeValue",
-            value: car.mileage ?? 0,
-            unitCode: "KMT",
-          },
-          offers: {
-            "@type": "Offer",
-            price: toRial(car.price),
-            priceCurrency: "IRR",
-            availability: "https://schema.org/InStock",
-            seller: { "@id": orgId },
-          },
-        },
-      })),
-    },
+    carListSchema("پرمخاطب‌ترین خودروهای اقساطی", popularCars),
     {
       "@type": "FAQPage",
       mainEntity: faqs.map((item) => ({

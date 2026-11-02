@@ -32,3 +32,12 @@ export const baseOpenGraph = {
   locale: "fa_IR",
   siteName: siteConfig.name,
 } as const
+
+// Child pages that override openGraph/twitter lose the root opengraph-image,
+// so they pass this explicitly
+export const socialImage = {
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "خودرو قسطی؛ خرید اقساطی خودرو بدون ضامن",
+}

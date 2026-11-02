@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button"
 import { siteConfig } from "@/lib/site"
 
 const links = [
-  { href: "#cars", label: "خودروها" },
-  { href: "#calculator", label: "محاسبه اقساط" },
-  { href: "#steps", label: "مراحل خرید" },
-  { href: "#faq", label: "سوالات متداول" },
+  { href: "/#brands", label: "برندها" },
+  { href: "/#popular", label: "پرمخاطب‌ها" },
+  { href: "/#steps", label: "مراحل خرید" },
+  { href: "/#faq", label: "سوالات متداول" },
 ]
 
 export function Logo() {
@@ -41,13 +41,13 @@ export function SiteHeader() {
 
         <nav aria-label="منوی اصلی" className="hidden items-center gap-6 text-sm md:flex">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -76,14 +76,14 @@ export function SiteHeader() {
         <div id="mobile-menu" className="border-t md:hidden">
           <nav aria-label="منوی موبایل" className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
             {links.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className="hover:bg-muted rounded-md px-3 py-2 text-sm"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <Button className="mt-2">ورود / ثبت‌نام</Button>
           </nav>

@@ -5,38 +5,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { calcInstallment, fa, million } from "@/lib/format"
 
-import { CarFilter } from "./car-filter"
 import { CarIllustration } from "./car-illustration"
-import { cars, type Car } from "./data"
+import type { Car } from "./data"
 
-export function CarList() {
-  return (
-    <CarFilter
-      heading={
-        <div>
-          <h2 id="cars-heading" className="text-2xl font-extrabold sm:text-3xl">
-            خودروهای قابل خرید اقساطی
-          </h2>
-          <p className="text-muted-foreground mt-2">
-            صفر و کارکرده، با پیش‌پرداخت کم و تحویل سریع
-          </p>
-        </div>
-      }
-    >
-      {cars.map((car) => (
-        <li
-          key={car.id}
-          data-condition={car.condition}
-          className="group-data-[filter=new]/list:data-[condition=used]:hidden group-data-[filter=used]/list:data-[condition=new]:hidden"
-        >
-          <CarCard car={car} />
-        </li>
-      ))}
-    </CarFilter>
-  )
-}
-
-function CarCard({ car }: { car: Car }) {
+export function CarCard({ car }: { car: Car }) {
   const { down, monthly } = calcInstallment(car.price, car.minDownPercent, 36)
 
   return (
