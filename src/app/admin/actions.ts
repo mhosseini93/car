@@ -14,7 +14,7 @@ export type LoginState = { error?: string; username?: string }
 const safeNext = (value: FormDataEntryValue | null) =>
   typeof value === "string" && value.startsWith("/admin") && !value.startsWith("//")
     ? value
-    : "/admin/settings"
+    : "/admin/posts"
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const username = String(formData.get("username") ?? "").trim()

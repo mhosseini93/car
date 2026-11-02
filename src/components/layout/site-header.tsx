@@ -11,6 +11,7 @@ const links = [
   { href: "/#brands", label: "برندها" },
   { href: "/#popular", label: "پرمخاطب‌ها" },
   { href: "/#steps", label: "مراحل خرید" },
+  { href: "/blog", label: "بلاگ" },
   { href: "/#faq", label: "سوالات متداول" },
 ]
 

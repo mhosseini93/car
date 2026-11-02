@@ -60,3 +60,8 @@
 
 ### محتوا
 - متن‌ها فارسی روان و استاندارد باشند (نیم‌فاصله، اعداد فارسی، علائم نگارشی درست) و کلمات کلیدی اصلی به‌طور طبیعی در عنوان، `h1`، پاراگراف اول و `alt` تصاویر بیایند.
+
+## بلاگ
+- صفحات: `/blog`، `/blog/[slug]`، `/blog/category/[slug]` در `src/app/(site)/blog/`. داده‌ها با `src/lib/blog.ts` (کش با تگ `blog`)؛ هلپرهای سمت کلاینت در `src/lib/blog-paths.ts` (کامپوننت‌های کلاینت نباید `lib/blog.ts` را import کنند).
+- پنل: `/admin/posts` (ویرایشگر Tiptap با کنترل robots، سئو، دسته‌بندی، مقالات مرتبط)، `/admin/categories`، `/admin/comments`. Server Actionها در `src/app/admin/blog-actions.ts` کش `blog` را با `updateTag` خالی می‌کنند.
+- تصاویر آپلودی با آدرس نسبی `/uploads/...` ذخیره و از طریق rewrite در `next.config.ts` از بک‌اند سرو می‌شوند.

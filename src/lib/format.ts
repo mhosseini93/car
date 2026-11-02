@@ -13,3 +13,7 @@ export function calcInstallment(price: number, downPercent: number, months: numb
   const total = principal * (1 + (ANNUAL_RATE * months) / 12)
   return { down, principal, total, monthly: total / months }
 }
+
+// Persian (Jalali) calendar date, e.g. «۱۱ آبان ۱۴۰۵»
+export const faDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("fa-IR", { year: "numeric", month: "long", day: "numeric" })

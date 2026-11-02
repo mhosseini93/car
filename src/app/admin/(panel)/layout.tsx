@@ -1,11 +1,11 @@
 import Link from "next/link"
-import { Car, ExternalLink, LogOut, Settings } from "lucide-react"
+import { Suspense } from "react"
+import { Car, ExternalLink, LogOut } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 import { logout } from "../actions"
-
-const nav = [{ href: "/admin/settings", label: "تنظیمات عمومی", icon: Settings }]
+import { AdminNav } from "./admin-nav"
 
 export default function AdminPanelLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,18 +17,9 @@ export default function AdminPanelLayout({ children }: { children: React.ReactNo
           </span>
           پنل مدیریت
         </div>
-        <nav aria-label="منوی پنل" className="flex gap-1 px-3 pb-3 md:flex-col">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="bg-primary/10 text-primary flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium"
-            >
-              <item.icon className="size-4" aria-hidden="true" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <Suspense fallback={<div className="h-11" />}>
+          <AdminNav />
+        </Suspense>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
