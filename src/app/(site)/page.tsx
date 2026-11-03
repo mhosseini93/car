@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input"
 import { BrandGrid } from "@/components/home/brand-grid"
 import { faqs } from "@/components/home/data"
 import { Hero } from "@/components/home/hero"
+import { LatestPosts } from "@/components/home/latest-posts"
 import { PopularCars } from "@/components/home/popular-cars"
 import { homeStructuredData } from "@/components/home/structured-data"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -169,6 +170,9 @@ export default function Home() {
           </ol>
         </div>
       </section>
+
+      {/* Latest blog posts */}
+      <LatestPosts />
 
       {/* FAQ */}
       <section
