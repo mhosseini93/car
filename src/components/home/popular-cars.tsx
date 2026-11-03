@@ -2,49 +2,46 @@ import Link from "next/link"
 import { Eye, Flame } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import { brandPath, type Car } from "@/lib/catalog"
 import { calcInstallment, fa, million } from "@/lib/format"
 
-import { CarIllustration } from "./car-illustration"
-import { getBrand, popularCars } from "./data"
+import { CarVisual } from "./car-card"
 
-export function PopularCars() {
+export function PopularCars({ cars }: { cars: Car[] }) {
   return (
     <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {popularCars.map((car, i) => {
-        const brand = getBrand(car.brand)
+      {cars.map((car, i) => {
         const { monthly } = calcInstallment(car.price, car.minDownPercent, 36)
 
         return (
           <li key={car.id}>
             <article
-              aria-labelledby={`popular-${car.id}`}
+              aria-labelledby={`popular-${car.slug}`}
               className="bg-card relative flex h-full flex-col overflow-hidden rounded-2xl border transition-shadow hover:shadow-lg"
             >
               <div className="from-primary/10 relative bg-linear-to-b to-transparent px-5 pt-9 pb-2">
-                <span className="bg-primary text-primary-foreground absolute top-3 right-3 grid size-8 place-items-center rounded-full text-sm font-black">
+                <span className="bg-primary text-primary-foreground absolute top-3 right-3 z-10 grid size-8 place-items-center rounded-full text-sm font-black">
                   <span className="sr-only">رتبه </span>
                   {fa(i + 1)}
                 </span>
                 {i === 0 && (
-                  <Badge className="absolute top-3 left-3 gap-1 bg-orange-500 text-white">
+                  <Badge className="absolute top-3 left-3 z-10 gap-1 bg-orange-500 text-white">
                     <Flame aria-hidden="true" />
                     داغ‌ترین
                   </Badge>
                 )}
-                <CarIllustration color={car.color} label={`تصویر ${car.name}`} className="w-full" />
+                <CarVisual car={car} sizes="(min-width: 1024px) 260px, (min-width: 640px) 45vw, 90vw" />
               </div>
 
               <div className="flex flex-1 flex-col gap-3 p-5 pt-3">
                 <div>
-                  {brand && (
-                    <Link
-                      href={`/brands/${brand.slug}`}
-                      className="text-muted-foreground hover:text-primary text-xs"
-                    >
-                      {brand.name}
-                    </Link>
-                  )}
-                  <h3 id={`popular-${car.id}`} className="font-bold">
+                  <Link
+                    href={brandPath(car.brand.slug)}
+                    className="text-muted-foreground hover:text-primary text-xs"
+                  >
+                    {car.brand.name}
+                  </Link>
+                  <h3 id={`popular-${car.slug}`} className="font-bold">
                     {car.name}
                   </h3>
                 </div>

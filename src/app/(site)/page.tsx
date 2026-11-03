@@ -27,6 +27,7 @@ import { LatestPosts } from "@/components/home/latest-posts"
 import { PopularCars } from "@/components/home/popular-cars"
 import { homeStructuredData } from "@/components/home/structured-data"
 import { JsonLd } from "@/components/seo/json-ld"
+import { getBrands, getPopularCars } from "@/lib/catalog"
 import { baseOpenGraph, siteConfig } from "@/lib/site"
 
 export const metadata: Metadata = {
@@ -77,12 +78,14 @@ function SectionHeading({
   )
 }
 
-export default function Home() {
+export default async function Home() {
+  const [brands, popularCars] = await Promise.all([getBrands(), getPopularCars()])
+
   return (
     <main id="main" className="flex-1">
-      <JsonLd data={homeStructuredData} />
+      <JsonLd data={homeStructuredData(brands ?? [], popularCars ?? [])} />
 
-      <Hero />
+      <Hero cars={popularCars ?? []} />
 
       {/* Brands */}
       <section
@@ -96,7 +99,7 @@ export default function Home() {
           description="برند مورد نظرتان را انتخاب کنید و همه خودروهای اقساطی آن را ببینید"
         />
         <div className="mt-8">
-          <BrandGrid />
+          <BrandGrid brands={brands ?? []} />
         </div>
       </section>
 
@@ -113,7 +116,7 @@ export default function Home() {
             description="خودروهایی که در هفته گذشته بیشترین بازدید را داشته‌اند"
           />
           <div className="mt-8">
-            <PopularCars />
+            <PopularCars cars={popularCars ?? []} />
           </div>
         </div>
       </section>

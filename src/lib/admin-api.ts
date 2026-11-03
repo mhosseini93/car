@@ -71,3 +71,59 @@ export type AdminComment = {
 }
 
 export type Paged<T, C> = { items: T[]; counts: C; page: number; totalPages: number; total: number }
+
+export type AdminBrand = {
+  id: number
+  slug: string
+  name: string
+  englishName: string
+  intro: string
+  content: string
+  logoUrl: string | null
+  color: string
+  faqs: { q: string; a: string }[]
+  metaTitle: string
+  metaDescription: string
+  robotsIndex: boolean
+  robotsFollow: boolean
+  isActive: boolean
+  position: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type AdminBrandInput = Omit<AdminBrand, "id" | "createdAt" | "updatedAt">
+
+export type AdminBrandRow = Pick<
+  AdminBrand,
+  "id" | "slug" | "name" | "logoUrl" | "color" | "isActive" | "robotsIndex" | "robotsFollow" | "position" | "updatedAt"
+> & { carCount: number; activeCarCount: number }
+
+export type AdminCar = {
+  id: number
+  slug: string
+  brandId: number
+  name: string
+  year: number
+  condition: "new" | "used"
+  mileage: number
+  price: number
+  minDownPercent: number
+  gearbox: string
+  fuel: string
+  color: string
+  imageUrl: string | null
+  imageAlt: string
+  tags: string[]
+  weeklyViews: number
+  isActive: boolean
+  position: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type AdminCarInput = Omit<AdminCar, "id" | "createdAt" | "updatedAt">
+
+export type AdminCarRow = Omit<AdminCar, "brandId" | "createdAt"> & {
+  brand: { id: number; slug: string; name: string }
+}

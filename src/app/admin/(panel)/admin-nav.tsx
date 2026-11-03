@@ -2,11 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FileText, FolderTree, MessagesSquare, Settings } from "lucide-react"
+import { BadgeCheck, CarFront, FileText, FolderTree, MessagesSquare, Settings } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const nav = [
+  { href: "/admin/brands", label: "برندها", icon: BadgeCheck },
+  { href: "/admin/cars", label: "خودروها", icon: CarFront },
   { href: "/admin/posts", label: "مقالات", icon: FileText },
   { href: "/admin/categories", label: "دسته‌بندی‌ها", icon: FolderTree },
   { href: "/admin/comments", label: "دیدگاه‌ها", icon: MessagesSquare },

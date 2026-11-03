@@ -4,13 +4,10 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
-  AlertCircle,
   AlertTriangle,
   ArrowDown,
   ArrowRight,
   ArrowUp,
-  Bot,
-  CheckCircle2,
   ExternalLink,
   FolderTree,
   ImagePlus,
@@ -21,24 +18,22 @@ import {
   Search,
   Send,
   Trash2,
-  X,
 } from "lucide-react"
 
-import { RichTextEditor, uploadFile } from "@/components/admin/rich-text-editor"
+import { Counter, FormAlert, ImagePicker, RobotsCard, SwitchRow, useEditorShortcuts } from "@/components/admin/form-parts"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import type { AdminCategory, AdminPost, AdminPostInput, AdminPostOption } from "@/lib/admin-api"
 import { postPath } from "@/lib/blog-paths"
 import { fa, faDate } from "@/lib/format"
 import { siteConfig } from "@/lib/site"
 import { SLUG_PATTERN, slugify } from "@/lib/slug"
-import { cn } from "@/lib/utils"
 
 import { saveCategory, savePost } from "../../blog-actions"
 import { DeletePostButton } from "./delete-post-button"
@@ -111,14 +106,6 @@ export function PostEditor({
     setNotice(null)
   }
 
-  // Warn before leaving with unsaved changes
-  React.useEffect(() => {
-    if (!dirty) return
-    const handler = (e: BeforeUnloadEvent) => e.preventDefault()
-    window.addEventListener("beforeunload", handler)
-    return () => window.removeEventListener("beforeunload", handler)
-  }, [dirty])
-
   const save = React.useCallback(
     (status: AdminPostInput["status"] = form.status) => {
       const payload = { ...form, status }
@@ -147,17 +134,7 @@ export function PostEditor({
     [form, post, router]
   )
 
-  // Ctrl+S saves
-  React.useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault()
-        if (!pending) save()
-      }
-    }
-    window.addEventListener("keydown", handler)
-    return () => window.removeEventListener("keydown", handler)
-  }, [save, pending])
+  useEditorShortcuts(dirty, save, pending)
 
   const isPublished = post?.status === "published"
   const scheduled = form.status === "published" && form.publishedAt && new Date(form.publishedAt) > new Date()
@@ -216,22 +193,7 @@ export function PostEditor({
         </div>
       </div>
 
-      {(errors.length > 0 || notice) && (
-        <div
-          role={errors.length ? "alert" : "status"}
-          className={cn(
-            "mb-6 flex gap-2 rounded-lg p-3 text-sm",
-            errors.length ? "bg-destructive/10 text-destructive" : "bg-emerald-500/10 text-emerald-700"
-          )}
-        >
-          {errors.length ? <AlertCircle className="mt-0.5 size-4 shrink-0" /> : <CheckCircle2 className="mt-0.5 size-4 shrink-0" />}
-          {errors.length ? (
-            <ul className="grid gap-1">{errors.map((e) => <li key={e}>{e}</li>)}</ul>
-          ) : (
-            notice
-          )}
-        </div>
-      )}
+      <FormAlert errors={errors} notice={notice} />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         {/* Main column */}
@@ -348,7 +310,15 @@ export function PostEditor({
             </CardContent>
           </Card>
 
-          <RobotsCard form={form} set={set} />
+          <RobotsCard
+            index={form.robotsIndex}
+            follow={form.robotsFollow}
+            subject="این مقاله"
+            onChange={(value) => {
+              setForm((f) => ({ ...f, ...value }))
+              setNotice(null)
+            }}
+          />
           <CoverCard form={form} set={set} />
           <CategoriesCard
             categories={categories}
@@ -393,80 +363,6 @@ export function PostEditor({
 }
 
 type SetField = <K extends keyof AdminPostInput>(key: K, value: AdminPostInput[K]) => void
-
-function Counter({ value, max, ideal }: { value: number; max: number; ideal?: [number, number] }) {
-  const good = ideal ? value >= ideal[0] && value <= ideal[1] : value <= max
-  return (
-    <p className={cn("text-xs", value === 0 ? "text-muted-foreground" : good ? "text-emerald-600" : "text-amber-600")}>
-      {fa(value)} / {fa(max)} نویسه
-      {ideal && ` (پیشنهادی: ${fa(ideal[0])} تا ${fa(ideal[1])})`}
-    </p>
-  )
-}
-
-function SwitchRow({
-  id,
-  checked,
-  onChange,
-  label,
-  description,
-}: {
-  id: string
-  checked: boolean
-  onChange: (value: boolean) => void
-  label: string
-  description?: string
-}) {
-  return (
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <Label htmlFor={id}>{label}</Label>
-        {description && <p className="text-muted-foreground mt-1 text-xs leading-5">{description}</p>}
-      </div>
-      <Switch id={id} dir="ltr" checked={checked} onCheckedChange={onChange} />
-    </div>
-  )
-}
-
-function RobotsCard({ form, set }: { form: AdminPostInput; set: SetField }) {
-  const meta = `${form.robotsIndex ? "index" : "noindex"}, ${form.robotsFollow ? "follow" : "nofollow"}`
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Bot className="text-primary size-4" />
-          ربات‌های موتور جستجو
-        </CardTitle>
-        <CardDescription>کنترل ایندکس شدن این مقاله و دنبال شدن لینک‌های آن.</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4">
-        <SwitchRow
-          id="robots-index"
-          checked={form.robotsIndex}
-          onChange={(v) => set("robotsIndex", v)}
-          label="ایندکس شود (index)"
-          description="خاموش = noindex؛ مقاله در نتایج گوگل نمایش داده نمی‌شود و از نقشه سایت حذف می‌شود."
-        />
-        <SwitchRow
-          id="robots-follow"
-          checked={form.robotsFollow}
-          onChange={(v) => set("robotsFollow", v)}
-          label="لینک‌ها دنبال شوند (follow)"
-          description="خاموش = nofollow؛ موتور جستجو لینک‌های این صفحه را دنبال نمی‌کند."
-        />
-        <code dir="ltr" className="bg-muted block rounded-md px-3 py-2 text-left text-xs">
-          {`<meta name="robots" content="${meta}">`}
-        </code>
-        {!form.robotsIndex && (
-          <p className="flex gap-1.5 rounded-md bg-amber-500/10 p-2 text-xs leading-5 text-amber-700">
-            <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-            این مقاله در گوگل ایندکس نخواهد شد.
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
 
 function SeoCard({ form, set }: { form: AdminPostInput; set: SetField }) {
   const title = form.metaTitle || `${form.title || "عنوان مقاله"} | ${siteConfig.name}`
@@ -520,24 +416,6 @@ function SeoCard({ form, set }: { form: AdminPostInput; set: SetField }) {
 }
 
 function CoverCard({ form, set }: { form: AdminPostInput; set: SetField }) {
-  const [busy, setBusy] = React.useState(false)
-  const [error, setError] = React.useState("")
-  const inputRef = React.useRef<HTMLInputElement>(null)
-
-  const onFile = async (file?: File) => {
-    if (!file) return
-    setBusy(true)
-    setError("")
-    try {
-      set("coverImageUrl", await uploadFile(file))
-    } catch (e) {
-      setError((e as Error).message)
-    } finally {
-      setBusy(false)
-      if (inputRef.current) inputRef.current.value = ""
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -547,45 +425,7 @@ function CoverCard({ form, set }: { form: AdminPostInput; set: SetField }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-3">
-        {form.coverImageUrl ? (
-          <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={form.coverImageUrl} alt="" className="aspect-video w-full rounded-lg border object-cover" />
-            <Button
-              type="button"
-              size="icon"
-              variant="secondary"
-              className="absolute top-2 left-2 size-7"
-              aria-label="حذف تصویر شاخص"
-              onClick={() => set("coverImageUrl", null)}
-            >
-              <X />
-            </Button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => inputRef.current?.click()}
-            className="text-muted-foreground hover:bg-muted grid aspect-video place-items-center rounded-lg border-2 border-dashed text-sm"
-          >
-            {busy ? "در حال بارگذاری..." : "انتخاب تصویر (حداکثر ۵ مگابایت)"}
-          </button>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-          className="hidden"
-          aria-label="بارگذاری تصویر شاخص"
-          onChange={(e) => onFile(e.target.files?.[0])}
-        />
-        {form.coverImageUrl && (
-          <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => inputRef.current?.click()}>
-            {busy ? "در حال بارگذاری..." : "تغییر تصویر"}
-          </Button>
-        )}
-        {error && <p className="text-destructive text-xs">{error}</p>}
+        <ImagePicker value={form.coverImageUrl} onChange={(url) => set("coverImageUrl", url)} label="تصویر شاخص" />
         <div className="grid gap-2">
           <Label htmlFor="cover-alt">متن جایگزین (alt)</Label>
           <Input id="cover-alt" value={form.coverImageAlt} maxLength={200} onChange={(e) => set("coverImageAlt", e.target.value)} />

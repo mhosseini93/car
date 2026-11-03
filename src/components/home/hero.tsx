@@ -3,8 +3,9 @@ import { ArrowLeft, ShieldCheck, Truck, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { calcInstallment, million } from "@/lib/format"
 
+import type { Car } from "@/lib/catalog"
+
 import { CarIllustration } from "./car-illustration"
-import { cars } from "./data"
 
 const stats = [
   { value: "+۱۲٬۰۰۰", label: "خریدار راضی" },
@@ -12,11 +13,11 @@ const stats = [
   { value: "۷۲ ساعته", label: "تحویل فوری" },
 ]
 
-const minMonthly = Math.min(
-  ...cars.map((c) => calcInstallment(c.price, c.minDownPercent, 48).monthly)
-)
+export function Hero({ cars }: { cars: Car[] }) {
+  const minMonthly = cars.length
+    ? Math.min(...cars.map((c) => calcInstallment(c.price, c.minDownPercent, 48).monthly))
+    : null
 
-export function Hero() {
   return (
     <section
       aria-labelledby="hero-heading"
@@ -101,7 +102,7 @@ export function Hero() {
               قسط ماهانه از
             </p>
             <p className="mt-1 text-2xl font-black">
-              {million(minMonthly)} <span className="text-sm font-medium">تومان</span>
+              {minMonthly === null ? "—" : million(minMonthly)} <span className="text-sm font-medium">تومان</span>
             </p>
           </div>
 

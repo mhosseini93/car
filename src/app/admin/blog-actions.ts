@@ -1,36 +1,16 @@
 "use server"
 
-import { updateTag } from "next/cache"
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
-import { ADMIN_COOKIE } from "@/lib/admin-session"
 import type { AdminCategory, AdminPost, AdminPostInput } from "@/lib/admin-api"
-import { ApiError, API_URL, api } from "@/lib/api"
+import { adminMutate, adminToken, NETWORK_ERROR, type ActionResult } from "@/lib/admin-mutate"
+import { API_URL } from "@/lib/api"
 import { BLOG_TAG } from "@/lib/blog-paths"
 
-export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; errors: string[] }
+export type { ActionResult } from "@/lib/admin-mutate"
 
-const NETWORK_ERROR = "ارتباط با سرور برقرار نشد. بعداً دوباره تلاش کنید."
-
-async function token() {
-  const value = (await cookies()).get(ADMIN_COOKIE)?.value
-  if (!value) redirect("/admin/login")
-  return value
-}
-
-// Runs an admin API call, refreshes the public blog cache and maps errors to messages
-async function mutate<T>(path: string, init: RequestInit): Promise<ActionResult<T>> {
-  try {
-    const data = await api<T>(path, { ...init, token: await token() })
-    updateTag(BLOG_TAG)
-    return { ok: true, data }
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) redirect("/admin/login")
-    if (error instanceof ApiError) return { ok: false, errors: error.messages }
-    return { ok: false, errors: [NETWORK_ERROR] }
-  }
-}
+// Admin API call that also refreshes the public blog cache
+const mutate = <T,>(path: string, init: RequestInit) => adminMutate<T>(path, init, BLOG_TAG)
 
 export async function savePost(id: number | null, input: AdminPostInput) {
   return mutate<AdminPost>(id ? `/admin/posts/${id}` : "/admin/posts", {
@@ -77,7 +57,7 @@ export async function uploadImage(formData: FormData): Promise<ActionResult<{ ur
   try {
     const res = await fetch(`${API_URL}/admin/uploads`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${await token()}` },
+      headers: { Authorization: `Bearer ${await adminToken()}` },
       body,
     })
     if (res.status === 401) redirect("/admin/login")

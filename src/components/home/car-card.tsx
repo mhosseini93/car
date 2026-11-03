@@ -1,21 +1,63 @@
+import Image from "next/image"
 import { ArrowLeft, Cog, Fuel, Gauge } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import type { Car } from "@/lib/catalog"
 import { calcInstallment, fa, million } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
 import { CarIllustration } from "./car-illustration"
-import type { Car } from "./data"
 
-export function CarCard({ car }: { car: Car }) {
+// Uploaded photo when there is one, otherwise the illustration in the car's color
+export function CarVisual({
+  car,
+  sizes,
+  priority,
+  className,
+}: {
+  car: Pick<Car, "name" | "color" | "imageUrl" | "imageAlt">
+  sizes: string
+  priority?: boolean
+  className?: string
+}) {
+  if (!car.imageUrl) {
+    return <CarIllustration color={car.color} label={`تصویر ${car.name}`} className={cn("w-full", className)} />
+  }
+  return (
+    <div className={cn("relative aspect-[12/5] w-full", className)}>
+      <Image
+        src={car.imageUrl}
+        alt={car.imageAlt || car.name}
+        fill
+        sizes={sizes}
+        priority={priority}
+        // External URLs aren't in images.remotePatterns, so serve them as-is
+        unoptimized={!car.imageUrl.startsWith("/")}
+        className="object-contain"
+      />
+    </div>
+  )
+}
+
+export function CarCard({
+  car,
+  priority,
+  headingLevel: Heading = "h3",
+}: {
+  car: Car
+  priority?: boolean
+  headingLevel?: "h2" | "h3"
+}) {
   const { down, monthly } = calcInstallment(car.price, car.minDownPercent, 36)
+  const headingId = `car-${car.slug}`
 
   return (
     <Card className="group h-full gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg">
-      <article className="flex h-full flex-col" aria-labelledby={`car-${car.id}`}>
+      <article className="flex h-full flex-col" aria-labelledby={headingId}>
         <div className="from-muted to-background relative bg-linear-to-b px-6 pt-10 pb-4">
-          <div className="absolute top-3 right-3 flex gap-1.5">
+          <div className="absolute top-3 right-3 z-10 flex flex-wrap gap-1.5">
             <Badge variant={car.condition === "new" ? "default" : "secondary"}>
               {car.condition === "new" ? "صفر کیلومتر" : "کارکرده"}
             </Badge>
@@ -25,19 +67,20 @@ export function CarCard({ car }: { car: Car }) {
               </Badge>
             ))}
           </div>
-          <CarIllustration
-            color={car.color}
-            label={`تصویر ${car.name}`}
-            className="w-full transition-transform duration-300 group-hover:-translate-x-2"
+          <CarVisual
+            car={car}
+            priority={priority}
+            sizes="(min-width: 1024px) 340px, (min-width: 768px) 45vw, 90vw"
+            className="transition-transform duration-300 group-hover:-translate-x-2"
           />
         </div>
 
         <CardContent className="grid flex-1 gap-4 pt-5">
-          <div className="flex items-baseline justify-between">
-            <h3 id={`car-${car.id}`} className="text-lg font-bold">
+          <div className="flex items-baseline justify-between gap-2">
+            <Heading id={headingId} className="text-lg font-bold">
               {car.name}
-            </h3>
-            <span className="text-muted-foreground text-sm">مدل {fa(car.year)}</span>
+            </Heading>
+            <span className="text-muted-foreground shrink-0 text-sm">مدل {fa(car.year)}</span>
           </div>
 
           <ul className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">

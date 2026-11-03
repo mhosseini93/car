@@ -65,3 +65,11 @@
 - صفحات: `/blog`، `/blog/[slug]`، `/blog/category/[slug]` در `src/app/(site)/blog/`. داده‌ها با `src/lib/blog.ts` (کش با تگ `blog`)؛ هلپرهای سمت کلاینت در `src/lib/blog-paths.ts` (کامپوننت‌های کلاینت نباید `lib/blog.ts` را import کنند).
 - پنل: `/admin/posts` (ویرایشگر Tiptap با کنترل robots، سئو، دسته‌بندی، مقالات مرتبط)، `/admin/categories`، `/admin/comments`. Server Actionها در `src/app/admin/blog-actions.ts` کش `blog` را با `updateTag` خالی می‌کنند.
 - تصاویر آپلودی با آدرس نسبی `/uploads/...` ذخیره و از طریق rewrite در `next.config.ts` از بک‌اند سرو می‌شوند.
+
+## برندها و خودروها (کاتالوگ)
+- صفحات: `/brands` (لیست برندها) و `/brands/[slug]` (صفحه هر برند با لیست خودروها، جدول قیمت و اقساط، متن معرفی و سوالات متداول) در `src/app/(site)/brands/`. داده‌ها با `src/lib/catalog.ts` (کش با تگ `catalog`)؛ هلپرهای سمت کلاینت در `src/lib/catalog-paths.ts`.
+- بخش برندها و «پرمخاطب‌ترین خودروها» در صفحه اصلی هم از همین داده‌ها خوانده می‌شوند (رتبه‌بندی بر اساس «بازدید هفته گذشته» هر خودرو).
+- فیلتر و مرتب‌سازی خودروهای صفحه برند فقط سمت کلاینت است و آدرس را تغییر نمی‌دهد تا همه خودروها در HTML سرور باشند و صفحه یک نسخه canonical داشته باشد.
+- اگر برای برند در پنل سوال متداول ثبت نشده باشد، سوالات پیش‌فرض با قیمت و قسط واقعی خودروها ساخته می‌شوند (FAQPage).
+- پنل: `/admin/brands` و `/admin/cars`؛ Server Actionها در `src/app/admin/catalog-actions.ts` کش `catalog` را خالی می‌کنند.
+- اجزای مشترک فرم‌های پنل (Counter، SwitchRow، RobotsCard، SeoFields، ImagePicker، DeleteButton، میان‌بر Ctrl+S) در `src/components/admin/form-parts.tsx` هستند؛ ویرایشگر جدید از همین‌ها استفاده کند. هلپر ذخیره در Server Actionها: `adminMutate` در `src/lib/admin-mutate.ts`.

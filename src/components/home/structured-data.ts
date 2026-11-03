@@ -1,6 +1,7 @@
+import type { BrandSummary, Car } from "@/lib/catalog"
 import { absoluteUrl, siteConfig } from "@/lib/site"
 
-import { brands, faqs, getBrand, popularCars, type Car } from "./data"
+import { faqs } from "./data"
 
 export const orgId = absoluteUrl("/#organization")
 
@@ -17,7 +18,9 @@ export function carListSchema(name: string, list: Car[]) {
       item: {
         "@type": "Car",
         name: car.name,
-        brand: { "@type": "Brand", name: getBrand(car.brand)?.name },
+        brand: { "@type": "Brand", name: car.brand.name },
+        ...(car.imageUrl ? { image: absoluteUrl(car.imageUrl) } : {}),
+        modelDate: String(car.year),
         itemCondition:
           car.condition === "new"
             ? "https://schema.org/NewCondition"
@@ -53,7 +56,18 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
   }
 }
 
-export const homeStructuredData = {
+export function faqSchema(items: { q: string; a: string }[]) {
+  return {
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  }
+}
+
+export const homeStructuredData = (brands: BrandSummary[], popularCars: Car[]) => ({
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -83,13 +97,6 @@ export const homeStructuredData = {
       publisher: { "@id": orgId },
     },
     carListSchema("پرمخاطب‌ترین خودروهای اقساطی", popularCars),
-    {
-      "@type": "FAQPage",
-      mainEntity: faqs.map((item) => ({
-        "@type": "Question",
-        name: item.q,
-        acceptedAnswer: { "@type": "Answer", text: item.a },
-      })),
-    },
+    faqSchema(faqs),
   ],
-}
+})

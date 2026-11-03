@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { siteConfig } from "@/lib/site"
 
 const links = [
-  { href: "/#brands", label: "برندها" },
+  { href: "/brands", label: "برندها" },
   { href: "/#popular", label: "پرمخاطب‌ها" },
   { href: "/#steps", label: "مراحل خرید" },
   { href: "/blog", label: "بلاگ" },
