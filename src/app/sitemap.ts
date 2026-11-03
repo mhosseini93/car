@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next"
 
 import { categoryPath, getBlogSitemap, postPath } from "@/lib/blog"
-import { brandPath, getCatalogSitemap } from "@/lib/catalog"
+import { brandPath, carPath, getCatalogSitemap } from "@/lib/catalog"
 import { absoluteUrl } from "@/lib/site"
 
 // Add every new public page here
@@ -9,8 +9,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date()
   // Blog URLs come from the backend; only indexable, self-canonical posts are listed
   const blog = await getBlogSitemap().catch(() => null)
-  // Active, indexable brand pages
-  const brands = await getCatalogSitemap().catch(() => null)
+  // Active, indexable brand and car pages
+  const catalog = await getCatalogSitemap().catch(() => null)
 
   return [
     {
@@ -25,11 +25,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
-    ...(brands ?? []).map((brand) => ({
+    ...(catalog?.brands ?? []).map((brand) => ({
       url: absoluteUrl(brandPath(brand.slug)),
       lastModified: new Date(brand.updatedAt),
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    ...(catalog?.cars ?? []).map((car) => ({
+      url: absoluteUrl(carPath(car.slug)),
+      lastModified: new Date(car.updatedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
     })),
     {
       url: absoluteUrl("/blog"),

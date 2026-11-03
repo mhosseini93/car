@@ -5,7 +5,7 @@ import { CarFront } from "lucide-react"
 
 import { CarCard } from "@/components/home/car-card"
 import type { Car } from "@/lib/catalog"
-import { calcInstallment, fa } from "@/lib/format"
+import { fa, lowestInstallment } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type Condition = "all" | Car["condition"]
@@ -19,7 +19,7 @@ const sorts: { value: Sort; label: string }[] = [
   { value: "monthly", label: "کمترین قسط ماهانه" },
 ]
 
-const monthly = (car: Car) => calcInstallment(car.price, car.minDownPercent, 36).monthly
+const monthly = (car: Car) => lowestInstallment(car).monthly
 
 const compare: Record<Exclude<Sort, "default">, (a: Car, b: Car) => number> = {
   popular: (a, b) => b.weeklyViews - a.weeklyViews,

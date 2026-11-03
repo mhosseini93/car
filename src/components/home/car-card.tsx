@@ -1,11 +1,13 @@
 import Image from "next/image"
+import Link from "next/link"
 import { ArrowLeft, Cog, Fuel, Gauge } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import type { Car } from "@/lib/catalog"
-import { calcInstallment, fa, million } from "@/lib/format"
+import { carPath } from "@/lib/catalog-paths"
+import { fa, faYear, lowestInstallment, million } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 import { CarIllustration } from "./car-illustration"
@@ -50,11 +52,12 @@ export function CarCard({
   priority?: boolean
   headingLevel?: "h2" | "h3"
 }) {
-  const { down, monthly } = calcInstallment(car.price, car.minDownPercent, 36)
+  const { down, monthly } = lowestInstallment(car)
+  const href = carPath(car.slug)
   const headingId = `car-${car.slug}`
 
   return (
-    <Card className="group h-full gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg">
+    <Card className="group relative h-full gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg">
       <article className="flex h-full flex-col" aria-labelledby={headingId}>
         <div className="from-muted to-background relative bg-linear-to-b px-6 pt-10 pb-4">
           <div className="absolute top-3 right-3 z-10 flex flex-wrap gap-1.5">
@@ -78,9 +81,15 @@ export function CarCard({
         <CardContent className="grid flex-1 gap-4 pt-5">
           <div className="flex items-baseline justify-between gap-2">
             <Heading id={headingId} className="text-lg font-bold">
-              {car.name}
+              {/* Stretched over the whole card so any click opens the car page */}
+              <Link
+                href={href}
+                className="hover:text-primary outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
+              >
+                {car.name}
+              </Link>
             </Heading>
-            <span className="text-muted-foreground shrink-0 text-sm">مدل {fa(car.year)}</span>
+            <span className="text-muted-foreground shrink-0 text-sm">مدل {faYear(car.year)}</span>
           </div>
 
           <ul className="text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 text-xs">
@@ -113,9 +122,11 @@ export function CarCard({
             <p className="text-muted-foreground text-xs">قیمت نقدی</p>
             <p className="font-bold">{million(car.price)} تومان</p>
           </div>
-          <Button variant="outline" size="sm" aria-label={`خرید قسطی ${car.name}`}>
-            خرید قسطی
-            <ArrowLeft aria-hidden="true" />
+          <Button variant="outline" size="sm" className="relative z-10" asChild>
+            <Link href={href} aria-label={`خرید قسطی ${car.name}`}>
+              خرید قسطی
+              <ArrowLeft aria-hidden="true" />
+            </Link>
           </Button>
         </CardFooter>
       </article>

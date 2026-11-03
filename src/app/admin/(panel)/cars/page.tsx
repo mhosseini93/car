@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { adminApi, type AdminBrandRow, type AdminCarRow } from "@/lib/admin-api"
-import { calcInstallment, fa, million } from "@/lib/format"
+import { fa, faYear, lowestInstallment, million } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 import { deleteCar } from "../../catalog-actions"
@@ -102,7 +102,7 @@ async function CarsTable({ searchParams }: Pick<Props, "searchParams">) {
               <TableHead>برند</TableHead>
               <TableHead>وضعیت</TableHead>
               <TableHead>قیمت (تومان)</TableHead>
-              <TableHead>قسط ۳۶ ماهه</TableHead>
+              <TableHead>کمترین قسط</TableHead>
               <TableHead>بازدید هفته</TableHead>
               <TableHead>نمایش</TableHead>
               <TableHead className="w-24"><span className="sr-only">عملیات</span></TableHead>
@@ -120,7 +120,7 @@ async function CarsTable({ searchParams }: Pick<Props, "searchParams">) {
                       <Link href={`/admin/cars/${car.id}`} className="hover:text-primary block font-medium">
                         {car.name}
                       </Link>
-                      <span className="text-muted-foreground block text-xs">مدل {fa(car.year)}</span>
+                      <span className="text-muted-foreground block text-xs">مدل {faYear(car.year)}</span>
                     </div>
                   </div>
                 </TableCell>
@@ -132,7 +132,7 @@ async function CarsTable({ searchParams }: Pick<Props, "searchParams">) {
                 </TableCell>
                 <TableCell className="text-sm">{million(car.price)}</TableCell>
                 <TableCell className="text-primary text-sm font-medium">
-                  {million(calcInstallment(car.price, car.minDownPercent, 36).monthly)}
+                  {million(lowestInstallment(car).monthly)}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">{fa(car.weeklyViews)}</TableCell>
                 <TableCell>

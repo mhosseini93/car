@@ -3,7 +3,7 @@ import { cacheLife, cacheTag } from "next/cache"
 import { ApiError, api } from "@/lib/api"
 import { CATALOG_TAG } from "@/lib/catalog-paths"
 
-export { CATALOG_TAG, brandPath } from "@/lib/catalog-paths"
+export { CATALOG_TAG, brandPath, carPath } from "@/lib/catalog-paths"
 
 export type BrandRef = { id: number; slug: string; name: string }
 
@@ -22,9 +22,32 @@ export type Car = {
   color: string
   imageUrl: string | null
   imageAlt: string
+  installments: CarInstallment[]
   tags: string[]
   weeklyViews: number
   brand: BrandRef
+}
+
+export type CarImage = { src: string; alt: string }
+// group: section title such as «سیستم ترمز»; null for ungrouped specs
+export type CarSpec = { group: string | null; label: string; value: string }
+// amount: monthly installment in toman
+export type CarInstallment = { months: number; amount: number }
+
+export type CarDetail = Omit<Car, "brand"> & {
+  gallery: CarImage[]
+  // Sanitized HTML
+  content: string
+  specs: CarSpec[]
+  installments: CarInstallment[]
+  metaTitle: string
+  metaDescription: string
+  robotsIndex: boolean
+  robotsFollow: boolean
+  createdAt: string
+  updatedAt: string
+  brand: BrandRef & { color: string; logoUrl: string | null }
+  related: Car[]
 }
 
 export type BrandSummary = {
@@ -73,4 +96,7 @@ export const getBrand = (slug: string) => cached<Brand>(`/catalog/brands/${encod
 
 export const getPopularCars = () => cached<Car[]>("/catalog/cars/popular").catch(() => null)
 
-export const getCatalogSitemap = () => cached<{ slug: string; updatedAt: string }[]>("/catalog/sitemap")
+export const getCar = (slug: string) => cached<CarDetail>(`/catalog/cars/${encodeURIComponent(slug)}`)
+
+type SitemapEntry = { slug: string; updatedAt: string }
+export const getCatalogSitemap = () => cached<{ brands: SitemapEntry[]; cars: SitemapEntry[] }>("/catalog/sitemap")

@@ -1,0 +1,46 @@
+{
+  "pageTypes": [
+    { "match": "^/$", "type": null },
+    { "match": "^/cars/?$", "type": "page" },
+    { "match": "^/cars/[^/]+/?$", "type": "product" },
+    { "match": ".*", "type": "auto" }
+  ],
+  "ignoreCategorySlugs": [],
+  "selectors": {
+    "content": [
+      ".desc-top .editor-content, .content-scroller-new:not(#attributes):not(.backcolor), .faqs-content",
+      ".editor-content",
+      "main"
+    ],
+    "removeFromContent": ["script", "style", "noscript", "iframe", "form", "nav", ".attribute-access-new", ".socials-new"],
+    "promoteToHeading": [".scroller-title-new"],
+    "mainImage": [".owl-cars-new img", ".brand-image img"],
+    "gallery": [".owl-cars-new .item a"],
+    "ratingValue": [],
+    "ratingCount": [],
+    "breadcrumb": ["#breadcrumbs a"],
+    "productCategories": [".brands-new a"],
+    "specs": [
+      { "item": ".feature-item-new", "label": ".inner-feature-item-new > span:not(.feature-item-value)", "value": ".feature-item-value", "groupName": "ویژگی‌های کلیدی" },
+      { "item": "#attributes .attribute-cars li", "label": ".label", "value": ".value", "group": ".scroller-title-new" }
+    ],
+    "pricing": {
+      "container": ".content-scroller-new.backcolor",
+      "title": ".scroller-title-new",
+      "fieldItem": ".top-popup p",
+      "fieldLabel": ".label",
+      "fieldValue": "span",
+      "installmentsTable": "#websima-car-pricing-installments"
+    },
+    "listItem": ["article.car-item"],
+    "listItemLink": ["h4 a[href]", "a[href]"],
+    "listItemTitle": ["h4"],
+    "listItemSummary": [],
+    "listItemImage": [".post-item-image img"],
+    "listItemPrice": [".price-card"],
+    "listItemSpecs": [{ "item": ".detail li", "label": ".label", "value": ".value-icon" }],
+    "pagination": [".pagination a[href]", "a.page-numbers[href]"],
+    "totalCount": [],
+    "faq": { "item": ".faqs-item", "question": ".faqs-question", "answer": ".faqs-answer", "group": ".faq-cat a" }
+  }
+}

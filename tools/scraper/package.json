@@ -1,0 +1,13 @@
+{
+  "name": "site-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "اسکرپر قابل‌پیکربندی برای استخراج محصولات و دسته‌بندی‌ها از روی sitemap",
+  "scripts": {
+    "scrape": "node scrape.mjs"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

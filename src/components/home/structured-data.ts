@@ -1,4 +1,5 @@
 import type { BrandSummary, Car } from "@/lib/catalog"
+import { carPath } from "@/lib/catalog-paths"
 import { absoluteUrl, siteConfig } from "@/lib/site"
 
 import { faqs } from "./data"
@@ -8,6 +9,37 @@ export const orgId = absoluteUrl("/#organization")
 // Prices are stored in toman; schema.org expects an ISO currency (IRR = toman × 10)
 const toRial = (toman: number) => toman * 10
 
+export function carSchema(car: Car) {
+  const url = absoluteUrl(carPath(car.slug))
+  return {
+    "@type": "Car",
+    name: car.name,
+    url,
+    brand: { "@type": "Brand", name: car.brand.name },
+    ...(car.imageUrl ? { image: absoluteUrl(car.imageUrl) } : {}),
+    modelDate: String(car.year),
+    itemCondition:
+      car.condition === "new"
+        ? "https://schema.org/NewCondition"
+        : "https://schema.org/UsedCondition",
+    vehicleTransmission: car.gearbox,
+    fuelType: car.fuel,
+    mileageFromOdometer: {
+      "@type": "QuantitativeValue",
+      value: car.mileage ?? 0,
+      unitCode: "KMT",
+    },
+    offers: {
+      "@type": "Offer",
+      url,
+      price: toRial(car.price),
+      priceCurrency: "IRR",
+      availability: "https://schema.org/InStock",
+      seller: { "@id": orgId },
+    },
+  }
+}
+
 export function carListSchema(name: string, list: Car[]) {
   return {
     "@type": "ItemList",
@@ -15,31 +47,7 @@ export function carListSchema(name: string, list: Car[]) {
     itemListElement: list.map((car, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      item: {
-        "@type": "Car",
-        name: car.name,
-        brand: { "@type": "Brand", name: car.brand.name },
-        ...(car.imageUrl ? { image: absoluteUrl(car.imageUrl) } : {}),
-        modelDate: String(car.year),
-        itemCondition:
-          car.condition === "new"
-            ? "https://schema.org/NewCondition"
-            : "https://schema.org/UsedCondition",
-        vehicleTransmission: car.gearbox,
-        fuelType: car.fuel,
-        mileageFromOdometer: {
-          "@type": "QuantitativeValue",
-          value: car.mileage ?? 0,
-          unitCode: "KMT",
-        },
-        offers: {
-          "@type": "Offer",
-          price: toRial(car.price),
-          priceCurrency: "IRR",
-          availability: "https://schema.org/InStock",
-          seller: { "@id": orgId },
-        },
-      },
+      item: carSchema(car),
     })),
   }
 }

@@ -1,7 +1,7 @@
 import { ArrowLeft, ShieldCheck, Truck, Wallet } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { calcInstallment, million } from "@/lib/format"
+import { lowestInstallment, million } from "@/lib/format"
 
 import type { Car } from "@/lib/catalog"
 
@@ -15,7 +15,7 @@ const stats = [
 
 export function Hero({ cars }: { cars: Car[] }) {
   const minMonthly = cars.length
-    ? Math.min(...cars.map((c) => calcInstallment(c.price, c.minDownPercent, 48).monthly))
+    ? Math.min(...cars.map((c) => lowestInstallment(c).monthly))
     : null
 
   return (

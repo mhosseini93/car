@@ -9,9 +9,12 @@ import {
   DeleteButton,
   FormAlert,
   ImagePicker,
+  RobotsCard,
+  SeoFields,
   SwitchRow,
   useEditorShortcuts,
 } from "@/components/admin/form-parts"
+import { RichTextEditor } from "@/components/admin/rich-text-editor"
 import { CarIllustration } from "@/components/home/car-illustration"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -19,12 +22,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { AdminBrandRow, AdminCar, AdminCarInput } from "@/lib/admin-api"
-import { brandPath, FUELS, GEARBOXES } from "@/lib/catalog-paths"
-import { calcInstallment, fa, faDate, toman } from "@/lib/format"
+import { carDefaultDescription, carDefaultTitle, carPath, FUELS, GEARBOXES } from "@/lib/catalog-paths"
+import { faDate, lowestInstallment, toman } from "@/lib/format"
+import { siteConfig } from "@/lib/site"
 import { SLUG_PATTERN, slugify } from "@/lib/slug"
 import { cn } from "@/lib/utils"
 
 import { deleteCar, saveCar } from "../../catalog-actions"
+import { GalleryCard, InstallmentsEditor, SpecsCard } from "./car-editor-parts"
 
 const EMPTY: AdminCarInput = {
   name: "",
@@ -40,6 +45,14 @@ const EMPTY: AdminCarInput = {
   color: "#e5e7eb",
   imageUrl: null,
   imageAlt: "",
+  gallery: [],
+  content: "",
+  specs: [],
+  installments: [],
+  metaTitle: "",
+  metaDescription: "",
+  robotsIndex: true,
+  robotsFollow: true,
   tags: [],
   weeklyViews: 0,
   isActive: true,
@@ -87,6 +100,13 @@ export function CarEditor({
     if (!form.brandId) problems.push("برند را انتخاب کنید")
     if (form.price < 1_000_000) problems.push("قیمت نقدی را به تومان وارد کنید")
     if (form.imageUrl && !form.imageAlt.trim()) problems.push("برای تصویر خودرو متن جایگزین (alt) بنویسید")
+    if (form.gallery.some((image) => !image.alt.trim())) problems.push("برای همه تصاویر گالری متن جایگزین (alt) بنویسید")
+    if (form.specs.some((spec) => !spec.label.trim() || !spec.value.trim()))
+      problems.push("عنوان و مقدار همه مشخصات فنی را پر کنید یا ردیف‌های خالی را حذف کنید")
+    if (form.installments.some((row) => !row.months || !row.amount))
+      problems.push("تعداد ماه و مبلغ همه طرح‌های اقساط را پر کنید")
+    if (new Set(form.installments.map((row) => row.months)).size !== form.installments.length)
+      problems.push("هر مدت بازپرداخت فقط یک بار در جدول اقساط بیاید")
     setErrors(problems)
     if (problems.length) return
 
@@ -143,11 +163,11 @@ export function CarEditor({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {car && brand?.isActive && (
+          {car?.isActive && brand?.isActive && (
             <Button variant="ghost" size="sm" asChild>
-              <Link href={`${brandPath(brand.slug)}#cars`} target="_blank">
+              <Link href={carPath(car.slug)} target="_blank">
                 <ExternalLink aria-hidden="true" />
-                مشاهده در صفحه برند
+                مشاهده صفحه خودرو
               </Link>
             </Button>
           )}
@@ -310,6 +330,29 @@ export function CarEditor({
           </Card>
 
           <PriceCard form={form} update={update} />
+
+          <GalleryCard images={form.gallery} carName={form.name} onChange={(gallery) => update({ gallery })} />
+
+          <SpecsCard specs={form.specs} onChange={(specs) => update({ specs })} />
+
+          <section aria-labelledby="content-heading" className="grid gap-3">
+            <div>
+              <h2 id="content-heading" className="font-bold">بررسی و توضیحات خودرو</h2>
+              <p className="text-muted-foreground text-xs">
+                بعد از مشخصات فنی در صفحه خودرو نمایش داده می‌شود؛ برای سئو از تیترهای H2 و H3 استفاده کنید.
+              </p>
+            </div>
+            <RichTextEditor value={form.content} onChange={(content) => update({ content })} />
+          </section>
+
+          <SeoFields
+            path={["cars", form.slug]}
+            title={form.metaTitle}
+            description={form.metaDescription}
+            fallbackTitle={`${carDefaultTitle(form.name || "خودرو")} | ${siteConfig.name}`}
+            fallbackDescription={form.price ? carDefaultDescription({ ...form, name: form.name || "خودرو" }) : ""}
+            onChange={update}
+          />
         </div>
 
         <div className="grid content-start gap-6">
@@ -348,6 +391,18 @@ export function CarEditor({
               )}
             </CardContent>
           </Card>
+
+          <RobotsCard index={form.robotsIndex} follow={form.robotsFollow} subject="صفحه این خودرو" onChange={update} />
+
+          {car?.sourceUrl && (
+            <p className="text-muted-foreground rounded-lg border p-3 text-xs leading-6">
+              این خودرو از{" "}
+              <a href={car.sourceUrl} target="_blank" rel="noreferrer" className="text-primary break-all hover:underline" dir="ltr">
+                {car.sourceUrl}
+              </a>{" "}
+              وارد شده است. اجرای دوباره ورود داده، قیمت، مشخصات و اقساط را از همان‌جا به‌روز می‌کند.
+            </p>
+          )}
 
           <Card>
             <CardHeader>
@@ -397,7 +452,7 @@ export function CarEditor({
 }
 
 function PriceCard({ form, update }: { form: AdminCarInput; update: (value: Partial<AdminCarInput>) => void }) {
-  const plans = [12, 24, 36, 48].map((months) => ({ months, ...calcInstallment(form.price, form.minDownPercent, months) }))
+  const low = lowestInstallment(form)
 
   return (
     <Card>
@@ -433,35 +488,16 @@ function PriceCard({ form, update }: { form: AdminCarInput; update: (value: Part
               onChange={(e) => update({ minDownPercent: Math.min(90, toInt(e.target.value)) })}
             />
             <p className="text-muted-foreground text-xs">
-              {form.price ? `${toman(plans[0].down)} پیش‌پرداخت` : "—"}
+              {form.price ? `${toman(low.down)} پیش‌پرداخت` : "—"}
             </p>
           </div>
         </div>
-        {form.price > 0 && (
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
-              <caption className="text-muted-foreground bg-muted/50 p-2 text-start text-xs">
-                پیش‌نمایش اقساط با حداقل پیش‌پرداخت (همان محاسبه‌ای که در سایت نمایش داده می‌شود)
-              </caption>
-              <thead className="text-muted-foreground text-xs">
-                <tr className="border-b">
-                  <th scope="col" className="px-3 py-2 text-start font-medium">مدت</th>
-                  <th scope="col" className="px-3 py-2 text-start font-medium">قسط ماهانه</th>
-                  <th scope="col" className="px-3 py-2 text-start font-medium">جمع اقساط</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {plans.map((plan) => (
-                  <tr key={plan.months} className={plan.months === 36 ? "bg-primary/5" : undefined}>
-                    <td className="px-3 py-2">{fa(plan.months)} ماه</td>
-                    <td className="text-primary px-3 py-2 font-medium">{toman(plan.monthly)}</td>
-                    <td className="text-muted-foreground px-3 py-2">{toman(plan.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <InstallmentsEditor
+          price={form.price}
+          minDownPercent={form.minDownPercent}
+          installments={form.installments}
+          onChange={(installments) => update({ installments })}
+        />
       </CardContent>
     </Card>
   )

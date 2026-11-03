@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { decodeSlug } from "@/lib/blog"
-import { brandPath, getBrand, getBrands, type Brand, type BrandFaq, type Car } from "@/lib/catalog"
-import { calcInstallment, fa, million } from "@/lib/format"
+import { brandPath, carPath, getBrand, getBrands, type Brand, type BrandFaq, type Car } from "@/lib/catalog"
+import { fa, faYear, lowestInstallment, million } from "@/lib/format"
 import { absoluteUrl, baseOpenGraph, siteConfig, socialImage } from "@/lib/site"
 
 import { BrandCars } from "./brand-cars"
@@ -83,7 +83,7 @@ function BrandPageSkeleton() {
 function summarize(cars: Car[]) {
   if (!cars.length) return null
   const byMonthly = cars
-    .map((car) => ({ car, ...calcInstallment(car.price, car.minDownPercent, 36) }))
+    .map((car) => ({ car, ...lowestInstallment(car) }))
     .sort((a, b) => a.monthly - b.monthly)
   const byDown = [...byMonthly].sort((a, b) => a.down - b.down)
   return {
@@ -111,7 +111,7 @@ function defaultFaqs(brand: Brand, stats: ReturnType<typeof summarize>): BrandFa
     },
     {
       q: `کمترین قسط ماهانه ${brand.name} چقدر است؟`,
-      a: `با بازپرداخت ۳۶ ماهه، قسط ${stats.cheapestMonthly.car.name} از حدود ${million(stats.cheapestMonthly.monthly)} تومان در ماه شروع می‌شود. با انتخاب پیش‌پرداخت بیشتر یا مدت طولانی‌تر، قسط ماهانه کمتر می‌شود.`,
+      a: `با بازپرداخت ${fa(stats.cheapestMonthly.months)} ماهه، قسط ${stats.cheapestMonthly.car.name} از حدود ${million(stats.cheapestMonthly.monthly)} تومان در ماه شروع می‌شود. با انتخاب پیش‌پرداخت بیشتر یا مدت طولانی‌تر، قسط ماهانه کمتر می‌شود.`,
     },
     {
       q: `کدام خودروهای ${brand.name} به‌صورت اقساطی فروخته می‌شوند؟`,
@@ -268,7 +268,7 @@ async function BrandContent({ params }: Pick<Props, "params">) {
           لیست خودروهای اقساطی {brand.name}
         </h2>
         <p className="text-muted-foreground mt-2">
-          قیمت نقدی، پیش‌پرداخت و قسط ماهانه هر خودرو با بازپرداخت ۳۶ ماهه محاسبه شده است.
+          قیمت نقدی، حداقل پیش‌پرداخت و کمترین قسط ماهانه هر خودرو؛ برای دیدن همه طرح‌های اقساط وارد صفحه خودرو شوید.
         </p>
         <BrandCars cars={brand.cars} brandName={brand.name} />
       </section>
@@ -291,22 +291,28 @@ async function BrandContent({ params }: Pick<Props, "params">) {
                     <th scope="col" className="px-4 py-3 text-start font-medium">وضعیت</th>
                     <th scope="col" className="px-4 py-3 text-start font-medium">قیمت نقدی (تومان)</th>
                     <th scope="col" className="px-4 py-3 text-start font-medium">پیش‌پرداخت</th>
-                    <th scope="col" className="px-4 py-3 text-start font-medium">قسط ۳۶ ماهه</th>
+                    <th scope="col" className="px-4 py-3 text-start font-medium">کمترین قسط ماهانه</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {brand.cars.map((car) => {
-                    const { down, monthly } = calcInstallment(car.price, car.minDownPercent, 36)
+                    const { down, monthly, months } = lowestInstallment(car)
                     return (
                       <tr key={car.id}>
-                        <th scope="row" className="px-4 py-3 text-start font-bold">{car.name}</th>
-                        <td className="px-4 py-3">{fa(car.year)}</td>
+                        <th scope="row" className="px-4 py-3 text-start font-bold">
+                          <Link href={carPath(car.slug)} className="hover:text-primary hover:underline">
+                            {car.name}
+                          </Link>
+                        </th>
+                        <td className="px-4 py-3">{faYear(car.year)}</td>
                         <td className="px-4 py-3">{car.condition === "new" ? "صفر" : `${fa(car.mileage)} کیلومتر`}</td>
                         <td className="px-4 py-3">{million(car.price)}</td>
                         <td className="px-4 py-3">
                           {million(down)} <span className="text-muted-foreground text-xs">({fa(car.minDownPercent)}٪)</span>
                         </td>
-                        <td className="text-primary px-4 py-3 font-bold">{million(monthly)}</td>
+                        <td className="text-primary px-4 py-3 font-bold">
+                          {million(monthly)} <span className="text-muted-foreground text-xs font-normal">({fa(months)} ماهه)</span>
+                        </td>
                       </tr>
                     )
                   })}

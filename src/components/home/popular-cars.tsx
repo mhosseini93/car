@@ -2,8 +2,8 @@ import Link from "next/link"
 import { Eye, Flame } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
-import { brandPath, type Car } from "@/lib/catalog"
-import { calcInstallment, fa, million } from "@/lib/format"
+import { brandPath, carPath, type Car } from "@/lib/catalog"
+import { fa, lowestInstallment, million } from "@/lib/format"
 
 import { CarVisual } from "./car-card"
 
@@ -11,7 +11,7 @@ export function PopularCars({ cars }: { cars: Car[] }) {
   return (
     <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {cars.map((car, i) => {
-        const { monthly } = calcInstallment(car.price, car.minDownPercent, 36)
+        const { monthly } = lowestInstallment(car)
 
         return (
           <li key={car.id}>
@@ -37,12 +37,18 @@ export function PopularCars({ cars }: { cars: Car[] }) {
                 <div>
                   <Link
                     href={brandPath(car.brand.slug)}
-                    className="text-muted-foreground hover:text-primary text-xs"
+                    className="text-muted-foreground hover:text-primary relative z-10 text-xs"
                   >
                     {car.brand.name}
                   </Link>
                   <h3 id={`popular-${car.slug}`} className="font-bold">
-                    {car.name}
+                    {/* Stretched over the whole card */}
+                    <Link
+                      href={carPath(car.slug)}
+                      className="hover:text-primary outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
+                    >
+                      {car.name}
+                    </Link>
                   </h3>
                 </div>
                 <p className="text-sm">

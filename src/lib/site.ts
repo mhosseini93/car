@@ -23,7 +23,8 @@ export const siteConfig = {
   themeColor: "#1d4ed8",
 }
 
-export const absoluteUrl = (path = "/") => `${siteConfig.url}${path}`
+// Already-absolute URLs (e.g. imported images on another host) pass through unchanged
+export const absoluteUrl = (path = "/") => (/^https?:\/\//.test(path) ? path : `${siteConfig.url}${path}`)
 
 // Nested metadata objects replace (not merge with) the parent's, so pages that
 // set openGraph should spread this in

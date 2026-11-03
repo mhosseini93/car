@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 
 import { ADMIN_COOKIE } from "@/lib/admin-session"
 import { ApiError, api } from "@/lib/api"
+import type { CarImage, CarInstallment, CarSpec } from "@/lib/catalog"
 
 // Backend call as the signed-in admin; an expired session goes back to login
 export async function adminApi<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -114,6 +115,17 @@ export type AdminCar = {
   color: string
   imageUrl: string | null
   imageAlt: string
+  gallery: CarImage[]
+  // HTML from the rich-text editor
+  content: string
+  specs: CarSpec[]
+  installments: CarInstallment[]
+  metaTitle: string
+  metaDescription: string
+  robotsIndex: boolean
+  robotsFollow: boolean
+  // Page the car was imported from; read-only
+  sourceUrl: string | null
   tags: string[]
   weeklyViews: number
   isActive: boolean
@@ -122,8 +134,21 @@ export type AdminCar = {
   updatedAt: string
 }
 
-export type AdminCarInput = Omit<AdminCar, "id" | "createdAt" | "updatedAt">
+export type AdminCarInput = Omit<AdminCar, "id" | "createdAt" | "updatedAt" | "sourceUrl">
 
-export type AdminCarRow = Omit<AdminCar, "brandId" | "createdAt"> & {
+// List rows leave out the page content (description, gallery, specs, SEO)
+export type AdminCarRow = Omit<
+  AdminCar,
+  | "brandId"
+  | "createdAt"
+  | "gallery"
+  | "content"
+  | "specs"
+  | "metaTitle"
+  | "metaDescription"
+  | "robotsIndex"
+  | "robotsFollow"
+  | "sourceUrl"
+> & {
   brand: { id: number; slug: string; name: string }
 }
