@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { connection } from "next/server"
 import { Suspense } from "react"
 import { ExternalLink, Pencil, Plus, Search } from "lucide-react"
 
@@ -17,6 +18,9 @@ import { DeletePostButton } from "./delete-post-button"
 export const metadata: Metadata = { title: "مقالات" }
 
 type Counts = { all: number; published: number; draft: number }
+
+// Published with a future date: not visible on the site yet
+const isScheduled = (publishedAt: string) => new Date(publishedAt).getTime() > Date.now()
 type Props = PageProps<"/admin/posts">
 
 export default function AdminPostsPage({ searchParams }: Props) {
@@ -42,6 +46,8 @@ export default function AdminPostsPage({ searchParams }: Props) {
 }
 
 async function PostsTable({ searchParams }: Pick<Props, "searchParams">) {
+  // The scheduled-post badge compares against the current time, so render per request
+  await connection()
   const params = await searchParams
   const status = params.status === "draft" || params.status === "published" ? params.status : undefined
   const q = typeof params.q === "string" ? params.q.trim() : ""
@@ -123,7 +129,7 @@ async function PostsTable({ searchParams }: Pick<Props, "searchParams">) {
                 </TableCell>
                 <TableCell>
                   {post.status === "published" ? (
-                    post.publishedAt && new Date(post.publishedAt) > new Date() ? (
+                    post.publishedAt && isScheduled(post.publishedAt) ? (
                       <Badge variant="outline">زمان‌بندی‌شده</Badge>
                     ) : (
                       <Badge className="bg-emerald-600">منتشرشده</Badge>

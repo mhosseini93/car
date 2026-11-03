@@ -84,10 +84,6 @@ export function RichTextEditor({
   onChange: (html: string) => void
   placeholder?: string
 }) {
-  const [sourceMode, setSourceMode] = React.useState(false)
-  const [source, setSource] = React.useState("")
-  const [linkOpen, setLinkOpen] = React.useState(false)
-  const [imageOpen, setImageOpen] = React.useState(false)
   const [uploading, setUploading] = React.useState(0)
   const editorRef = React.useRef<Editor | null>(null)
 
@@ -125,7 +121,8 @@ export function RichTextEditor({
         },
       }),
       Image.configure({ HTMLAttributes: { loading: "lazy" } }),
-      TextAlign.configure({ types: ["heading", "paragraph"], defaultAlignment: "right" }),
+      // No default alignment: RTL text is right-aligned already, so only explicit changes are stored
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       Highlight,
       Subscript,
       Superscript,
@@ -155,10 +152,30 @@ export function RichTextEditor({
     editorRef.current = editor
   }, [editor])
 
+  if (!editor) {
+    return <div className="bg-muted/40 h-[32rem] animate-pulse rounded-xl border" />
+  }
+  return <EditorBody editor={editor} onChange={onChange} uploading={uploading} />
+}
+
+// Rendered only once the editor exists, so useEditorState always has an editor to watch
+function EditorBody({
+  editor,
+  onChange,
+  uploading,
+}: {
+  editor: Editor
+  onChange: (html: string) => void
+  uploading: number
+}) {
+  const [sourceMode, setSourceMode] = React.useState(false)
+  const [source, setSource] = React.useState("")
+  const [linkOpen, setLinkOpen] = React.useState(false)
+  const [imageOpen, setImageOpen] = React.useState(false)
+
   const state = useEditorState({
     editor,
-    selector: ({ editor: e }) =>
-      e && {
+    selector: ({ editor: e }) => ({
         words: e.storage.characterCount.words() as number,
         characters: e.storage.characterCount.characters() as number,
         inTable: e.isActive("table"),
@@ -187,12 +204,8 @@ export function RichTextEditor({
           blockquote: e.isActive("blockquote"),
           codeBlock: e.isActive("codeBlock"),
         },
-      },
+      }),
   })
-
-  if (!editor || !state) {
-    return <div className="bg-muted/40 h-[32rem] animate-pulse rounded-xl border" />
-  }
 
   const chain = () => editor.chain().focus()
   const a = state.active
@@ -201,17 +214,19 @@ export function RichTextEditor({
     if (sourceMode) {
       editor.commands.setContent(source, { emitUpdate: true })
     } else {
-      setSource(editor.getHTML())
+      // An empty editor still serializes as <p></p>; start the source view blank instead
+      setSource(editor.isEmpty ? "" : editor.getHTML())
     }
     setSourceMode(!sourceMode)
   }
 
   return (
-    <div className="bg-background overflow-hidden rounded-xl border">
+    <div className="bg-background rounded-xl border">
       <div
         role="toolbar"
         aria-label="ابزارهای ویرایشگر"
-        className="bg-muted/40 sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b p-1.5 backdrop-blur"
+        // Sticks below the page header, whose height the parent passes in --editor-toolbar-top
+        className="bg-muted/90 sticky top-(--editor-toolbar-top,0px) z-10 flex flex-wrap items-center gap-0.5 rounded-t-xl border-b p-1.5 backdrop-blur"
       >
         <Group>
           <Tool icon={Undo2} label="واگرد (Ctrl+Z)" onClick={() => chain().undo().run()} disabled={sourceMode || !state.canUndo} />

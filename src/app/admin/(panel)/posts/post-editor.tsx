@@ -91,6 +91,19 @@ export function PostEditor({
   const [errors, setErrors] = React.useState<string[]>([])
   const [notice, setNotice] = React.useState<string | null>(null)
   const [pending, startTransition] = React.useTransition()
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const topBarRef = React.useRef<HTMLDivElement>(null)
+
+  // Keep the editor toolbar pinned just below the (possibly wrapping) top bar
+  React.useEffect(() => {
+    const bar = topBarRef.current
+    if (!bar) return
+    const observer = new ResizeObserver(() => {
+      rootRef.current?.style.setProperty("--editor-toolbar-top", `${bar.offsetHeight}px`)
+    })
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [])
 
   const dirty = JSON.stringify(form) !== saved
   const set = <K extends keyof AdminPostInput>(key: K, value: AdminPostInput[K]) => {
@@ -150,9 +163,11 @@ export function PostEditor({
   const scheduled = form.status === "published" && form.publishedAt && new Date(form.publishedAt) > new Date()
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div ref={rootRef} className="mx-auto max-w-7xl">
       {/* Top bar */}
-      <div className="bg-muted/40 sticky top-0 z-20 -mx-4 mb-6 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
+      <div
+        ref={topBarRef}
+        className="bg-background/95 sticky top-0 z-20 -mx-4 mb-6 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/admin/posts" aria-label="بازگشت به مقالات">
