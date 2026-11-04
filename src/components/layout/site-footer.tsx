@@ -36,7 +36,11 @@ export async function SiteFooter() {
           </nav>
         ))}
         <div>
-          <h2 className="font-bold">تماس با ما</h2>
+          <h2 className="font-bold">
+            <Link href="/contact" className="hover:text-primary">
+              تماس با ما
+            </Link>
+          </h2>
           <address className="text-muted-foreground mt-4 grid gap-3 text-sm not-italic">
             <a href={`tel:${siteConfig.phone}`} className="hover:text-foreground flex items-center gap-2">
               <Phone className="size-4" aria-hidden="true" />
@@ -50,6 +54,18 @@ export async function SiteFooter() {
               {siteConfig.address.city}، {siteConfig.address.street}
             </p>
           </address>
+          <ul className="text-muted-foreground mt-4 flex gap-4 text-sm">
+            <li>
+              <Link href="/about" className="hover:text-foreground">
+                درباره ما
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-foreground">
+                فرم تماس و مشاوره
+              </Link>
+            </li>
+          </ul>
         </div>
       </div>
       <div className="text-muted-foreground border-t py-6 text-center text-xs">

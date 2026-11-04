@@ -79,3 +79,10 @@
 - ویرایشگر خودرو در پنل: مشخصات، قیمت و جدول اقساط اختصاصی، گالری، مشخصات فنی گروه‌بندی‌شده، متن بررسی (Tiptap)، سئو و ربات‌ها (اجزایش در `admin/(panel)/cars/car-editor-parts.tsx`).
 - پنل: `/admin/brands` و `/admin/cars`؛ Server Actionها در `src/app/admin/catalog-actions.ts` کش `catalog` را خالی می‌کنند.
 - اجزای مشترک فرم‌های پنل (Counter، SwitchRow، RobotsCard، SeoFields، ImagePicker، DeleteButton، میان‌بر Ctrl+S) در `src/components/admin/form-parts.tsx` هستند؛ ویرایشگر جدید از همین‌ها استفاده کند. هلپر ذخیره در Server Actionها: `adminMutate` در `src/lib/admin-mutate.ts`.
+
+## صفحات درباره ما و تماس با ما
+- `/about` و `/contact` در `src/app/(site)/`. اطلاعات تماس (تلفن، ایمیل، آدرس، ساعات کاری) فقط از `siteConfig` در `src/lib/site.ts` خوانده می‌شود؛ مقادیر فعلی نمونه‌اند و باید با اطلاعات واقعی جایگزین شوند.
+- آمار صفحه درباره ما (تعداد خودرو و برند) از داده‌های واقعی کاتالوگ محاسبه می‌شود؛ عدد ساختگی (سال تأسیس، تعداد مشتری و …) ننویس.
+- فرم تماس با Server Action در `contact/actions.ts` به `POST /api/contact` بک‌اند می‌رود (honeypot + محدودیت ۳ پیام در دقیقه). موضوع‌ها در `src/lib/contact.ts` هستند و باید با enum بک‌اند یکی بمانند. پس از خطا، مقادیر فرم از state برمی‌گردند تا پاک نشوند.
+- پیام‌ها در پنل: `/admin/messages` (پیگیری‌شده/نشده، حذف)؛ Server Actionها در `src/app/admin/contact-actions.ts`.
+- نوار مسیر (breadcrumb) صفحات جدید را با `PageBreadcrumb` (`src/components/layout/page-breadcrumb.tsx`) بساز.

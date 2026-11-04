@@ -13,6 +13,7 @@ const links = [
   { href: "/#steps", label: "مراحل خرید" },
   { href: "/blog", label: "بلاگ" },
   { href: "/#faq", label: "سوالات متداول" },
+  { href: "/contact", label: "تماس با ما" },
 ]
 
 export function Logo() {

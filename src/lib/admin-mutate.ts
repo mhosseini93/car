@@ -16,11 +16,11 @@ export async function adminToken() {
 }
 
 // For Server Actions: runs an admin API call, expires the public cache tag that
-// shows this data and maps errors to messages for the form
-export async function adminMutate<T>(path: string, init: RequestInit, tag: string): Promise<ActionResult<T>> {
+// shows this data (if any) and maps errors to messages for the form
+export async function adminMutate<T>(path: string, init: RequestInit, tag?: string): Promise<ActionResult<T>> {
   try {
     const data = await api<T>(path, { ...init, token: await adminToken() })
-    updateTag(tag)
+    if (tag) updateTag(tag)
     return { ok: true, data }
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) redirect("/admin/login")

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { ADMIN_COOKIE } from "@/lib/admin-session"
 import { ApiError, api } from "@/lib/api"
 import type { CarImage, CarInstallment, CarSpec } from "@/lib/catalog"
+import type { ContactSubject } from "@/lib/contact"
 
 // Backend call as the signed-in admin; an expired session goes back to login
 export async function adminApi<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -69,6 +70,17 @@ export type AdminComment = {
   status: "pending" | "approved" | "spam"
   createdAt: string
   post: { id: number; title: string; slug: string }
+}
+
+export type AdminContactMessage = {
+  id: number
+  name: string
+  phone: string
+  email: string
+  subject: ContactSubject
+  message: string
+  isRead: boolean
+  createdAt: string
 }
 
 export type Paged<T, C> = { items: T[]; counts: C; page: number; totalPages: number; total: number }

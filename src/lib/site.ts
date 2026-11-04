@@ -15,6 +15,9 @@ export const siteConfig = {
   phone: "+982100000000",
   phoneDisplay: "۰۲۱-۰۰۰۰۰۰۰۰",
   email: "info@example.com",
+  hours: "شنبه تا چهارشنبه ۹ تا ۱۸، پنجشنبه ۹ تا ۱۳",
+  // schema.org openingHours
+  openingHours: ["Sa-We 09:00-18:00", "Th 09:00-13:00"],
   address: {
     street: "خیابان نمونه، پلاک ۱",
     city: "تهران",
