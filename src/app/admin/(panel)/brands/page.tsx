@@ -86,11 +86,14 @@ async function BrandsTable() {
                 </Link>
               </TableCell>
               <TableCell>
-                {brand.isActive ? (
-                  <Badge className="bg-emerald-600">فعال</Badge>
-                ) : (
-                  <Badge variant="secondary">غیرفعال</Badge>
-                )}
+                <div className="flex gap-1">
+                  {brand.isActive ? (
+                    <Badge className="bg-emerald-600">فعال</Badge>
+                  ) : (
+                    <Badge variant="secondary">غیرفعال</Badge>
+                  )}
+                  {brand.showOnHome && <Badge variant="outline">صفحه اصلی</Badge>}
+                </div>
               </TableCell>
               <TableCell>
                 <div className="flex gap-1">

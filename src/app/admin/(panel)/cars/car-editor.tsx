@@ -54,7 +54,7 @@ const EMPTY: AdminCarInput = {
   robotsIndex: true,
   robotsFollow: true,
   tags: [],
-  weeklyViews: 0,
+  showOnHome: false,
   isActive: true,
   position: 0,
 }
@@ -368,15 +368,17 @@ export function CarEditor({
                 label="نمایش در سایت"
                 description={brand && !brand.isActive ? "برند این خودرو غیرفعال است؛ تا فعال نشود خودرو هم نمایش داده نمی‌شود." : undefined}
               />
+              <SwitchRow
+                id="car-home"
+                checked={form.showOnHome}
+                onChange={(showOnHome) => update({ showOnHome })}
+                label="نمایش در پرمخاطب‌ترین‌های صفحه اصلی"
+                description="حداکثر ۸ خودرو، به ترتیب «ترتیب نمایش»، در صفحه اصلی دیده می‌شوند."
+              />
               <div className="grid gap-2">
-                <Label htmlFor="car-position">ترتیب در صفحه برند</Label>
+                <Label htmlFor="car-position">ترتیب نمایش</Label>
                 <Input id="car-position" type="number" dir="ltr" min={0} value={form.position} onChange={(e) => update({ position: toInt(e.target.value) })} />
                 <p className="text-muted-foreground text-xs">عدد کوچک‌تر = جلوتر</p>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="car-views">بازدید هفته گذشته</Label>
-                <Input id="car-views" type="number" dir="ltr" min={0} value={form.weeklyViews} onChange={(e) => update({ weeklyViews: toInt(e.target.value) })} />
-                <p className="text-muted-foreground text-xs">رتبه‌بندی بخش «پرمخاطب‌ترین خودروها» صفحه اصلی</p>
               </div>
               {car && (
                 <div className="flex justify-end border-t pt-4">

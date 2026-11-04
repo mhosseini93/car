@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import {
+  ArrowLeft,
   BadgeCheck,
   CalendarClock,
   ClipboardCheck,
@@ -20,11 +22,12 @@ import {
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { BrandGrid } from "@/components/home/brand-grid"
+import { BrandStrip } from "@/components/home/brand-grid"
 import { faqs } from "@/components/home/data"
 import { Hero } from "@/components/home/hero"
 import { LatestPosts } from "@/components/home/latest-posts"
 import { PopularCars } from "@/components/home/popular-cars"
+import { ScrollButtons } from "@/components/home/scroll-buttons"
 import { homeStructuredData } from "@/components/home/structured-data"
 import { JsonLd } from "@/components/seo/json-ld"
 import { getBrands, getPopularCars } from "@/lib/catalog"
@@ -80,10 +83,11 @@ function SectionHeading({
 
 export default async function Home() {
   const [brands, popularCars] = await Promise.all([getBrands(), getPopularCars()])
+  const homeBrands = (brands ?? []).filter((brand) => brand.showOnHome)
 
   return (
     <main id="main" className="flex-1">
-      <JsonLd data={homeStructuredData(brands ?? [], popularCars ?? [])} />
+      <JsonLd data={homeStructuredData(homeBrands,popularCars ?? [])} />
 
       <Hero cars={popularCars ?? []} />
 
@@ -93,13 +97,22 @@ export default async function Home() {
         aria-labelledby="brands-heading"
         className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16"
       >
-        <SectionHeading
-          id="brands-heading"
-          title="خرید اقساطی خودرو بر اساس برند"
-          description="برند مورد نظرتان را انتخاب کنید و همه خودروهای اقساطی آن را ببینید"
-        />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <SectionHeading
+            id="brands-heading"
+            title="خرید اقساطی خودرو بر اساس برند"
+            description="برند مورد نظرتان را انتخاب کنید و همه خودروهای اقساطی آن را ببینید"
+          />
+          <div className="flex items-center gap-3">
+            <Link href="/brands" className="text-primary flex items-center gap-1 text-sm font-bold hover:underline">
+              همه برندهای خودرو
+              <ArrowLeft aria-hidden="true" className="size-4" />
+            </Link>
+            <ScrollButtons targetId="home-brands" label="برندهای" />
+          </div>
+        </div>
         <div className="mt-8">
-          <BrandGrid brands={brands ?? []} />
+          <BrandStrip id="home-brands" brands={homeBrands} />
         </div>
       </section>
 
@@ -113,7 +126,7 @@ export default async function Home() {
           <SectionHeading
             id="popular-heading"
             title="پرمخاطب‌ترین خودروهای اقساطی"
-            description="خودروهایی که در هفته گذشته بیشترین بازدید را داشته‌اند"
+            description="خودروهای منتخب و پرطرفدار برای خرید اقساطی بدون ضامن"
           />
           <div className="mt-8">
             <PopularCars cars={popularCars ?? []} />

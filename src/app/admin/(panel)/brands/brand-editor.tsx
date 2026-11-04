@@ -55,6 +55,7 @@ const EMPTY: AdminBrandInput = {
   robotsIndex: true,
   robotsFollow: true,
   isActive: true,
+  showOnHome: false,
   position: 0,
 }
 
@@ -270,6 +271,13 @@ export function BrandEditor({ brand, carCount }: { brand: AdminBrand | null; car
                 onChange={(isActive) => update({ isActive })}
                 label="نمایش در سایت"
                 description="خاموش = صفحه برند و خودروهایش در سایت نمایش داده نمی‌شوند."
+              />
+              <SwitchRow
+                id="brand-home"
+                checked={form.showOnHome}
+                onChange={(showOnHome) => update({ showOnHome })}
+                label="نمایش در صفحه اصلی"
+                description="برند در بخش برندهای صفحه اصلی (به ترتیب نمایش) دیده می‌شود."
               />
               <div className="grid gap-2">
                 <Label htmlFor="brand-position">ترتیب نمایش</Label>

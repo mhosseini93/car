@@ -103,7 +103,6 @@ async function CarsTable({ searchParams }: Pick<Props, "searchParams">) {
               <TableHead>وضعیت</TableHead>
               <TableHead>قیمت (تومان)</TableHead>
               <TableHead>کمترین قسط</TableHead>
-              <TableHead>بازدید هفته</TableHead>
               <TableHead>نمایش</TableHead>
               <TableHead className="w-24"><span className="sr-only">عملیات</span></TableHead>
             </TableRow>
@@ -134,9 +133,11 @@ async function CarsTable({ searchParams }: Pick<Props, "searchParams">) {
                 <TableCell className="text-primary text-sm font-medium">
                   {million(lowestInstallment(car).monthly)}
                 </TableCell>
-                <TableCell className="text-muted-foreground text-sm">{fa(car.weeklyViews)}</TableCell>
                 <TableCell>
-                  {car.isActive ? <Badge className="bg-emerald-600">فعال</Badge> : <Badge variant="secondary">غیرفعال</Badge>}
+                  <div className="flex gap-1">
+                    {car.isActive ? <Badge className="bg-emerald-600">فعال</Badge> : <Badge variant="secondary">غیرفعال</Badge>}
+                    {car.showOnHome && <Badge variant="outline">صفحه اصلی</Badge>}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-1">

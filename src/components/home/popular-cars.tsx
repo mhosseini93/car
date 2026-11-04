@@ -1,9 +1,9 @@
 import Link from "next/link"
-import { Eye, Flame } from "lucide-react"
+import { CalendarDays, Flame } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { brandPath, carPath, type Car } from "@/lib/catalog"
-import { fa, lowestInstallment, million } from "@/lib/format"
+import { fa, faYear, lowestInstallment, million } from "@/lib/format"
 
 import { CarVisual } from "./car-card"
 
@@ -56,8 +56,8 @@ export function PopularCars({ cars }: { cars: Car[] }) {
                   <span className="text-primary font-bold">{million(monthly)} تومان</span>
                 </p>
                 <p className="text-muted-foreground mt-auto flex items-center gap-1.5 border-t pt-3 text-xs">
-                  <Eye className="size-3.5" aria-hidden="true" />
-                  {fa(car.weeklyViews)} بازدید در هفته گذشته
+                  <CalendarDays className="size-3.5" aria-hidden="true" />
+                  مدل {faYear(car.year)} · {car.gearbox} · {car.condition === "new" ? "صفر کیلومتر" : "کارکرده"}
                 </p>
               </div>
             </article>

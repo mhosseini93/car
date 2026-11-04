@@ -9,11 +9,10 @@ import { fa, lowestInstallment } from "@/lib/format"
 import { cn } from "@/lib/utils"
 
 type Condition = "all" | Car["condition"]
-type Sort = "default" | "popular" | "cheap" | "expensive" | "monthly"
+type Sort = "default" | "cheap" | "expensive" | "monthly"
 
 const sorts: { value: Sort; label: string }[] = [
   { value: "default", label: "پیشنهاد ما" },
-  { value: "popular", label: "پربازدیدترین" },
   { value: "cheap", label: "ارزان‌ترین" },
   { value: "expensive", label: "گران‌ترین" },
   { value: "monthly", label: "کمترین قسط ماهانه" },
@@ -22,7 +21,6 @@ const sorts: { value: Sort; label: string }[] = [
 const monthly = (car: Car) => lowestInstallment(car).monthly
 
 const compare: Record<Exclude<Sort, "default">, (a: Car, b: Car) => number> = {
-  popular: (a, b) => b.weeklyViews - a.weeklyViews,
   cheap: (a, b) => a.price - b.price,
   expensive: (a, b) => b.price - a.price,
   monthly: (a, b) => monthly(a) - monthly(b),

@@ -88,6 +88,7 @@ export type AdminBrand = {
   robotsIndex: boolean
   robotsFollow: boolean
   isActive: boolean
+  showOnHome: boolean
   position: number
   createdAt: string
   updatedAt: string
@@ -97,7 +98,7 @@ export type AdminBrandInput = Omit<AdminBrand, "id" | "createdAt" | "updatedAt">
 
 export type AdminBrandRow = Pick<
   AdminBrand,
-  "id" | "slug" | "name" | "logoUrl" | "color" | "isActive" | "robotsIndex" | "robotsFollow" | "position" | "updatedAt"
+  "id" | "slug" | "name" | "logoUrl" | "color" | "isActive" | "showOnHome" | "robotsIndex" | "robotsFollow" | "position" | "updatedAt"
 > & { carCount: number; activeCarCount: number }
 
 export type AdminCar = {
@@ -127,7 +128,7 @@ export type AdminCar = {
   // Page the car was imported from; read-only
   sourceUrl: string | null
   tags: string[]
-  weeklyViews: number
+  showOnHome: boolean
   isActive: boolean
   position: number
   createdAt: string

@@ -24,7 +24,6 @@ export type Car = {
   imageAlt: string
   installments: CarInstallment[]
   tags: string[]
-  weeklyViews: number
   brand: BrandRef
 }
 
@@ -58,6 +57,7 @@ export type BrandSummary = {
   intro: string
   logoUrl: string | null
   color: string
+  showOnHome: boolean
   carCount: number
 }
 
